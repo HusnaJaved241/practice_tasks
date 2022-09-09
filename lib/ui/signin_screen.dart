@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:practice_firebase/controllers/auth_controller.dart';
-import 'package:practice_firebase/validations/textfield_validation.dart';
+import 'package:practice_firebase/validations/textfield_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/custom_widgets.dart';
@@ -86,8 +86,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             }
                           }),
                           GestureDetector(
-                            onTap: () => Navigator.pushReplacementNamed(
-                                context, '/signup-screen'),
+                            onTap: () => Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/signup-screen',
+                              (route) => false,
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: Text(

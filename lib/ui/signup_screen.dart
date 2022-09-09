@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:practice_firebase/controllers/auth_controller.dart';
-import 'package:practice_firebase/validations/textfield_validation.dart';
+import 'package:practice_firebase/validations/textfield_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/custom_widgets.dart';
@@ -15,10 +15,10 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final formGlobalKey = GlobalKey<FormState>();
-  TextEditingController? firstNameController = TextEditingController();
-  TextEditingController? lastNameController = TextEditingController();
-  TextEditingController? emailController = TextEditingController();
-  TextEditingController? passwordController = TextEditingController();
+  TextEditingController? firstNameController;
+  TextEditingController? lastNameController;
+  TextEditingController? emailController;
+  TextEditingController? passwordController;
   bool? isLoading;
   @override
   void initState() {
@@ -30,7 +30,6 @@ class _SignupScreenState extends State<SignupScreen> {
     lastNameController = TextEditingController(text: myProvider.lastName);
     emailController = TextEditingController(text: myProvider.email);
     passwordController = TextEditingController(text: myProvider.password);
-    // isLoading = myProvider.getloading();
     super.initState();
   }
 
@@ -52,8 +51,7 @@ class _SignupScreenState extends State<SignupScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            if (isloading) 
-              customLoadingWidget(),
+            if (isloading) customLoadingWidget(),
             SingleChildScrollView(
               child: Container(
                 height: currenHeight * 0.8,
@@ -100,22 +98,10 @@ class _SignupScreenState extends State<SignupScreen> {
                             () async {
                               if (formGlobalKey.currentState!.validate()) {
                                 formGlobalKey.currentState!.save();
-                                // final userMap = {
-                                //   'firstName': firstNameController.text,
-                                //   'lastName': lastNameController.text,
-                                //   'email': emailController.text,
-                                // };
-                                // var done = await context
-                                //     .read<AuthController>()
-                                //     .signupWithEmailAndPassword(
-                                //         emailController.text,
-                                //         passwordController.text,
-                                //         userMap,
-                                //         context);
                                 Provider.of<TextFieldProvider>(context,
                                         listen: false)
                                     .setLoading(true);
-                                await context
+                                var done = await context
                                     .read<AuthController>()
                                     .otherSignupMethod(
                                         context,
@@ -126,10 +112,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                 Provider.of<TextFieldProvider>(context,
                                         listen: false)
                                     .setLoading(false);
-                                // if (done == "success") {
-                                Navigator.pushNamedAndRemoveUntil(context,
-                                    '/signin-screen', (route) => false);
-                                // } else if (done == "failed") {}
+                                if (done == "success") {
+                                  Navigator.pushNamedAndRemoveUntil(context,
+                                      '/signin-screen', (route) => false);
+                                } else if (done == "failed") {
+                                } else {
+                                  Navigator.pushNamedAndRemoveUntil(context,
+                                      '/signin-screen', (route) => false);
+                                }
                               }
                             },
                           ),

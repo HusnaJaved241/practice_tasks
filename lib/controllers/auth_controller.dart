@@ -14,44 +14,23 @@ class AuthController {
     auth.signOut();
   }
 
-  Future createUserRecord(userMap) async {
-    User? user = await auth.currentUser;
-    await collectionRef.doc(user!.uid).set(userMap);
+
+ Future<UserModel?> fetchUserData() async{
+    UserModel? userModel  = UserModel(firstName: "", lastName: "", email: "");
+    await collectionRef.doc(auth.currentUser!.uid).get().then((value) {
+      userModel = UserModel.fromJson(value.data());
+    });
+    return userModel;
   }
 
   Future<DocumentSnapshot> fetchCurrentUser(String uuid) async {
-    DocumentSnapshot snap =
-        // await FirebaseFirestore.instance.collection('users').doc(uuid).get();
-        await collectionRef.doc(uuid).get();
-
+    DocumentSnapshot snap = await collectionRef.doc(uuid).get();
     return snap;
   }
 
   Future updateUserRecord(userMap) async {
     User? user = await auth.currentUser;
     await collectionRef.doc(user!.uid).update(userMap);
-  }
-
-  Future signupWithEmailAndPassword(
-      String email, String password, userMap, context) async {
-    try {
-      await auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await createUserRecord(userMap);
-      return "success";
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case "invalid-email":
-          showSnackBar(context, "Email is invalid");
-          break;
-        case "email-already-in-use":
-          showSnackBar(context, "Email is already in use");
-          break;
-      }
-      return "failed";
-    }
   }
 
   Future signinWithEmailAndPassword(
@@ -83,8 +62,6 @@ class AuthController {
       if (data.size > 0) {
         for (var document in data.docs) {
           userModel = UserModel.fromJson(document);
-          print(userModel.firstName);
-          print(userModel.lastName);
           return userModel;
         }
       } else {
@@ -95,21 +72,31 @@ class AuthController {
     }
   }
 
-  otherSignupMethod(context, String email, String password, String firstName,
-      String lastName) async {
-    await auth
-        .createUserWithEmailAndPassword(email: email, password: password)
-        .then((value) => {
-              postDataToFirestore(
-                context,
-                firstName,
-                lastName,
-                email,
-              )
-            })
-        .catchError((e) {
-      showSnackBar(context, e!.message);
-    });
+  Future otherSignupMethod(context, String email, String password,
+      String firstName, String lastName) async {
+    try {
+      await auth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((value) => {
+                postDataToFirestore(
+                  context,
+                  firstName,
+                  lastName,
+                  email,
+                )
+              });
+      return "success";
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "invalid-email":
+          showSnackBar(context, "Email is invalid");
+          break;
+        case "email-already-in-use":
+          showSnackBar(context, "Email is already in use");
+          break;
+      }
+      return "failed";
+    }
   }
 
   postDataToFirestore(context, firstName, lastName, email) async {

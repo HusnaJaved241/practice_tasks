@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:practice_firebase/controllers/auth_controller.dart';
 import 'package:practice_firebase/ui/signin_screen.dart';
 import 'package:practice_firebase/ui/signup_screen.dart';
-import 'package:practice_firebase/validations/textfield_validation.dart';
+import 'package:practice_firebase/validations/textfield_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:splash_view/splash_view.dart';
+import 'package:splash_view/utils/done.dart';
 
 import 'ui/detail_screen.dart';
 import 'ui/main_screen.dart';
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<TextFieldProvider>(
           create: (_) => TextFieldProvider(),
         ),
-        StreamProvider( 
+        StreamProvider(
           create: (context) => context.read<AuthController>().authState,
           initialData: null,
         ),
@@ -38,10 +40,15 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(
-        
-        ),
-        home: AuthWrapper(),
+        theme: ThemeData.dark(),
+        home: SplashView(
+            backgroundColor: Colors.white,
+            duration: Duration(seconds: 3),
+            logo: Image.asset(
+              'assets/rolls-royce.png',
+              width: 150.0,
+            ),
+            done: Done(AuthWrapper())),
         // home: SignupScreen(),
         routes: {
           '/signup-screen': (context) => SignupScreen(),
@@ -59,7 +66,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firebaseUser = context.watch<User?>(); //Provider.of(context)
+    final firebaseUser = context.watch<User?>();
 
     if (firebaseUser != null) {
       return MainScreen();

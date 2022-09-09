@@ -31,7 +31,7 @@ void showSnackBar(BuildContext context, String text) {
 
 Widget customLoadingWidget() {
   return Container(
-    color: Colors.black.withOpacity(0.8),
+    color: Colors.white.withOpacity(0.4),
     child: Center(
       child: CircularProgressIndicator(),
     ),
